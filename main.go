@@ -1,14 +1,24 @@
 package main
 
 import (
-	"net/http"
+	"html/template"
+	"fmt"
+	"os"
 )
 
 
 func main(){
-	http.HandleFunc("/", func (w http.ResponseWriter, r *http.Request){
-		http.ServeFile(w,r, "public" + r.URL.Path)
-	})
+	templateString := "Lemonade Stand Supply"
 
-	http.ListenAndServe(":8080", nil)
+	t, err := template.New("title").Parse(templateString)
+
+	if err != nil{
+		fmt.Println(err)
+	}
+
+	err = t.Execute(os. Stdout, nil)
+
+	if( err != nil){
+		fmt.Println(err)
+	}
 }
