@@ -1,24 +1,38 @@
 package main
 
 import (
+	"net/http"
 	"html/template"
-	"fmt"
-	"os"
+	"log"
 )
 
 
-func main(){
-	templateString := "Lemonade Stand Supply"
+func main() {
+	templates := populateTemplates()
 
-	t, err := template.New("title").Parse(templateString)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		requestedFile := r.URL.Path[1:]
+		t := templates.Lookup(requestedFile + ".html")
 
-	if err != nil{
-		fmt.Println(err)
-	}
+		if t != nil {
+			err := t.Execute(w, nil)
+			if err != nil {
+				log.Println(err)
+			} else {
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}
+	})
 
-	err = t.Execute(os. Stdout, nil)
+	http.Handle("/img/", http.FileServer(http.Dir("public")))
+	http.Handle("/css/", http.FileServer(http.Dir("public")))
+	http.ListenAndServe(":8080", nil)
+}
 
-	if( err != nil){
-		fmt.Println(err)
-	}
+func populateTemplates() *template.Template {
+	result := template.New("templates")
+	const basePath = "templates"
+
+	template.Must(result.ParseGlob(basePath + "/*.html"))
+	return result
 }
